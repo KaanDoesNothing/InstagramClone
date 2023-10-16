@@ -15,10 +15,10 @@
                             <div class="stat-title">Followers</div>
                             <div class="stat-value">{{ user.followers.length }}</div>
                         </RouterLink>
-                        <div class="stat">
+                        <RouterLink class="stat" :to="`/user/${user.username}/following`">
                             <div class="stat-title">Following</div>
                             <div class="stat-value">{{ user.following.length }}</div>
-                        </div>
+                        </RouterLink>
                     </div>
                 </div>
             </div>
