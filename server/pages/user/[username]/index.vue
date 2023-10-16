@@ -6,7 +6,7 @@
                     <img class="rounded w-32 h-32" :src="user.avatar">
                     <div class="px-5">
                         <label class="text-2xl">@{{ user.username }}</label>
-                        <button class="text-2xl px-2 font-bold" @click="handleFollow" v-if="state.isLoggedIn && state.user.username !== user.username">{{ isFollowing ? "-" : "+" }}</button>
+                        <button class="mx-2 font-bold btn btn-neutral btn-sm" @click="handleFollow" v-if="state.isLoggedIn && state.user.username !== user.username">{{ isFollowing ? "Unfollow" : "Follow" }}</button>
                     </div>
                 </div>
                 <div>
@@ -26,11 +26,39 @@
 
         <div class="flex justify-center mt-10">
             <div class="bg-base-200 p-5 w-2/3 rounded flex justify-between flex-col">
-                <label class="text-2xl">Posts</label>
+                <div class="flex justify-between">
+                    <label class="text-2xl">Posts</label>
+                    <button class="btn btn-neutral btn-sm" v-if="viewType === 'posts'" @click="viewType = 'create'">Create post</button>
+                    <button class="btn btn-neutral btn-sm" v-if="viewType === 'create'" @click="viewType = 'posts'">Go Back</button>
+                </div>
+                
 
-                <div class="flex flex-row">
-                    <div class="m-1 p-2 bg-base-300 rounded-lg" v-for="post in user.posts">
-                        <img class="h-64" :src="post.source">
+                <div class="flex flex-row mt-10 justify-center">
+                    <div class="m-1 p-2 bg-base-300 rounded-lg" v-for="post in user.posts" v-if="viewType === 'posts'">
+                        <div class="card card-compact w-64 bg-base-100 shadow-xl">
+                            <figure><img :src="post.source"/></figure>
+                            <div class="card-body">
+                                <h2 class="card-title">{{ post.description || "" }}</h2>
+                            </div>
+                        </div>
+                        <!-- <img class="h-64" :src="post.source"> -->
+                    </div>
+
+                    <div class="bg-base-300 w-2/3 flex justify-center" v-if="viewType === 'create'">
+                        <form class="p-5" @submit.prevent="handlePost">
+                            <img :src="img" v-if="img" class="mb-5 w-64">
+                            <div class="form-control w-full">
+                                <input type="file" class="file-input w-full max-w-xs" @change="handlePreview"/>
+                            </div>
+
+                            <div class="flex flex-col">
+                                <label class="label">Caption</label>
+                                <textarea class="textarea p-1 mt-2 w-full" style="resize: none;" v-model="caption"></textarea>
+                            </div>
+
+                            <button class="btn btn-sm w-full mt-2" type="submit">Post</button>
+                            <!-- <textarea class="textarea textarea-bordered h-24" placeholder="Caption"></textarea> -->
+                        </form>
                     </div>
                 </div>
             </div>      
@@ -46,7 +74,9 @@
     
     const user = ref<any>();
     const isFollowing = ref(false);
-    const viewType = ref("main");
+    const viewType = ref("posts");
+    const img = ref();
+    const caption = ref("");
 
     const fetchInformation = async () => {
         user.value = await fetchUser({username, token: state.token});
@@ -62,6 +92,22 @@
         }
 
         await fetchInformation();
+    }
+
+    const handlePreview = async (e: any) => {
+        console.log(e.target.files);
+        const form = new FormData();
+        form.append("upload", e.target.files[0]);
+
+        const res = await $fetch<any>("https://cdn.kaanlikescoding.me/api/upload/file", {method: "POST", body: form, params: {key: "instapost"}});
+
+        if(res.file) img.value = res.file.url.replace("/view/", "/");
+    }
+
+    const handlePost = async () => {
+        if(!img.value) return;
+
+        const res = await $fetch<any>("/api/actions/post/create", {body: {token: state.token, source: img.value, description: caption.value}, method: "POST"});
     }
 
     await fetchInformation();

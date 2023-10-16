@@ -33,6 +33,8 @@
 
         if(res.data.token) {
             await state.authenticate(res.data.token);
+
+            useRouter().push("/");
         }
     }
 </script>

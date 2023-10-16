@@ -5,6 +5,11 @@ export const ZUserSchema = z.object({
     password: z.string().min(5)
 });
 
-export const ZUsernameSchema = z.string().min(5)
+export const ZUsernameSchema = z.string().min(5);
 
 export const ZTokenSchema = z.string().min(20);
+
+export const ZPostSchema = z.object({
+    source: z.string().url(),
+    description: z.string().min(1)
+});

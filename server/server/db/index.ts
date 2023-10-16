@@ -38,7 +38,7 @@ export const prepareUser = async ({username} :{username: string}): Promise<{
     if(!user) throw "err";
     const followers = await DB_Follower.find({to: user._id}).sort({createdAt: -1}).populate("from").populate("to");
     const following = await DB_Follower.find({from: user._id}).sort({createdAt: -1}).populate("from").populate("to");
-    const posts = await DB_Post.find({author: user});
+    const posts = await (await DB_Post.find({author: user}).sort({createdAt: -1}).populate("author"));
 
     return {
         ...cleanUser(user.toObject()),

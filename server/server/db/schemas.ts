@@ -16,5 +16,6 @@ export const FollowerSchema = new mongoose.Schema({
 
 export const PostSchema = new mongoose.Schema({
     author: {type: mongoose.SchemaTypes.ObjectId, ref: "User", required: true},
-    source: {type: mongoose.SchemaTypes.String, required: true}
+    source: {type: mongoose.SchemaTypes.String, required: true},
+    description: {type: mongoose.SchemaTypes.String, required: true, default: ""}
 }, {timestamps: true})
