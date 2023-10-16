@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="flex justify-center">
-            <div class="bg-base-200 p-5 rounded flex justify-between flex-col">
+            <div class="bg-base-200 min-w-full min-h-full p-5 rounded flex justify-between flex-col">
                 <div class="rounded flex flex-col">
                     <RouterLink :to="`/user/${post.author.username}`" class="card-title flex flex-row">
                         <img class="h-8 rounded-full" :src="post.author.avatar">
