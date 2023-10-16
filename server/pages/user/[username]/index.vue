@@ -6,18 +6,18 @@
                     <img class="rounded w-32 h-32" :src="user.avatar">
                     <div class="px-5">
                         <label class="text-2xl">@{{ user.username }}</label>
-                        <button class="text-2xl px-2 font-bold" @click="handleFollow" v-if="state.user.username !== user.username">{{ user.isFollowing ? "-" : "+" }}</button>
+                        <button class="text-2xl px-2 font-bold" @click="handleFollow" v-if="state.user.username !== user.username">{{ isFollowing ? "-" : "+" }}</button>
                     </div>
                 </div>
                 <div>
                     <div class="stats stats-vertical shadow bg-base-200">
-                        <div class="stat">
+                        <RouterLink class="stat" :to="`/user/${user.username}/followers`">
                             <div class="stat-title">Followers</div>
-                            <div class="stat-value">{{ user.followers }}</div>
-                        </div>
+                            <div class="stat-value">{{ user.followers.length }}</div>
+                        </RouterLink>
                         <div class="stat">
                             <div class="stat-title">Following</div>
-                            <div class="stat-value">{{ user.following }}</div>
+                            <div class="stat-value">{{ user.following.length }}</div>
                         </div>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
         </div>
 
         <div class="flex justify-center mt-10">
-            <div class="bg-base-200 p-5 w-2/3 rounded flex justify-between flex flex-col">
+            <div class="bg-base-200 p-5 w-2/3 rounded flex justify-between flex-col">
                 <label class="text-2xl">Posts</label>
 
                 <div class="flex flex-row">
@@ -44,16 +44,25 @@
     const route = useRoute();
     const username = route.params.username as string;
     
-    const user = (await $fetch<any>(`/api/users/${encodeURIComponent(username)}`, {body: {token: state.token}, method: "POST"})).data;
-    // const user = await fetchUser({token: state.token, username: route.params.username as string});
+    const user = ref<any>();
+    const isFollowing = ref(false);
+    const viewType = ref("main");
+
+    const fetchInformation = async () => {
+        user.value = await fetchUser({username, token: state.token});
+
+        isFollowing.value = user.value.followers.filter((row: any) => row.from._id === state.user._id).length > 0;
+    }
 
     const handleFollow = async () => {
-        if(user.isFollowing) {
-            const res = await $fetch("/api/actions/unfollow", {body: {token: state.token, target: user.username}, method: "POST"});
+        if(isFollowing.value) {
+            const res = await $fetch("/api/actions/unfollow", {body: {token: state.token, target: user.value.username}, method: "POST"});
         }else {
-            const res = await $fetch("/api/actions/follow", {body: {token: state.token, target: user.username}, method: "POST"});
+            const res = await $fetch("/api/actions/follow", {body: {token: state.token, target: user.value.username}, method: "POST"});
         }
 
-        reloadNuxtApp({ttl: 0})
+        await fetchInformation();
     }
+
+    await fetchInformation();
 </script>

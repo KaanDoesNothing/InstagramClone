@@ -18,3 +18,44 @@ export const initDatabase = () => new Promise(async (resolve, reject) => {
 export const DB_User = mongoose.model("User", UserSchema);
 export const DB_Follower = mongoose.model("Follower", FollowerSchema);
 export const DB_Post = mongoose.model("Post", PostSchema);
+
+export const cleanUser = (user: any) => {
+    user.password = undefined;
+    user.token = undefined;
+    return user;
+}
+
+export const prepareUser = async ({username} :{username: string}): Promise<{
+    username: string,
+    followers: any[],
+    following: any[],
+    posts: any[],
+    token: undefined,
+    email: undefined,
+    password: undefined
+}> => {
+    const user = await DB_User.findOne({username}).populate("followers");
+    if(!user) throw "err";
+    const followers = await DB_Follower.find({to: user._id}).sort({createdAt: -1}).populate("from").populate("to");
+    const following = await DB_Follower.find({from: user._id}).sort({createdAt: -1}).populate("from").populate("to");
+    const posts = await DB_Post.find({author: user});
+
+    return {
+        ...cleanUser(user.toObject()),
+        followers: followers.map(row => {
+            return {
+                ...row,
+                from: cleanUser(row.from),
+                to: cleanUser(row.to)
+            }
+        }),
+        following: following.map(row => {
+            return {
+                ...row,
+                from: cleanUser(row.from),
+                to: cleanUser(row.to)
+            }
+        }),
+        posts
+    }
+}
