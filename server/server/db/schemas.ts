@@ -6,7 +6,9 @@ export const UserSchema = new mongoose.Schema({
     email: {type: mongoose.SchemaTypes.String, required: true},
     password: {type: mongoose.SchemaTypes.String, required: true},
     token: {type: mongoose.SchemaTypes.String, required: true},
+    description: {type: mongoose.SchemaTypes.String, required: false, default: "New User"},
     followers: [{type: mongoose.SchemaTypes.ObjectId, ref: "Follower"}],
+    following: [{type: mongoose.SchemaTypes.ObjectId, ref: "Follower"}]
 }, {timestamps: true});
 
 export const FollowerSchema = new mongoose.Schema({

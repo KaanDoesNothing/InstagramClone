@@ -5,8 +5,14 @@
                 <div class="flex flex-row">
                     <img class="rounded w-32 h-32" :src="user.avatar">
                     <div class="px-5">
-                        <label class="text-2xl">@{{ user.username }}</label>
-                        <button class="mx-2 font-bold btn btn-neutral btn-sm" @click="handleFollow" v-if="state.isLoggedIn && state.user.username !== user.username">{{ isFollowing ? "Unfollow" : "Follow" }}</button>
+                        <div class="flex flex-col">
+                            <div class="flex flex-row">
+                                <label class="text-2xl">@{{ user.username }}</label>
+                                <button class="mx-2 font-bold btn btn-neutral btn-sm" @click="handleFollow" v-if="state.isLoggedIn && state.user.username !== user.username">{{ isFollowing ? "Unfollow" : "Follow" }}</button>
+                            </div>
+
+                            <label class="label">{{ user.description }}</label>
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -28,8 +34,10 @@
             <div class="bg-base-200 p-5 w-2/3 rounded flex justify-between flex-col">
                 <div class="flex justify-between">
                     <label class="text-2xl">Posts</label>
-                    <button class="btn btn-neutral btn-sm" v-if="viewType === 'posts'" @click="viewType = 'create'">Create post</button>
-                    <button class="btn btn-neutral btn-sm" v-if="viewType === 'create'" @click="viewType = 'posts'">Go Back</button>
+                    <template v-if="state.isLoggedIn && state.user.username === user.username">
+                        <button class="btn btn-neutral btn-sm" v-if="viewType === 'posts'" @click="viewType = 'create'">Create post</button>
+                        <button class="btn btn-neutral btn-sm" v-if="viewType === 'create'" @click="viewType = 'posts'">Go Back</button>
+                    </template>
                 </div>
                 
 
