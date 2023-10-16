@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import {FollowerSchema, PostSchema, UserSchema} from "~/server/db/schemas";
+import {CommentSchema, FollowerSchema, PostSchema, UserSchema} from "~/server/db/schemas";
 
 const config = useRuntimeConfig();
 
@@ -18,6 +18,7 @@ export const initDatabase = () => new Promise(async (resolve, reject) => {
 export const DB_User = mongoose.model("User", UserSchema);
 export const DB_Follower = mongoose.model("Follower", FollowerSchema);
 export const DB_Post = mongoose.model("Post", PostSchema);
+export const DB_Comment = mongoose.model("Comment", CommentSchema);
 
 export const cleanUser = (user: any) => {
     user.password = undefined;
@@ -38,7 +39,7 @@ export const prepareUser = async ({username} :{username: string}): Promise<{
     if(!user) throw "err";
     const followers = await DB_Follower.find({to: user._id}).sort({createdAt: -1}).populate("from").populate("to");
     const following = await DB_Follower.find({from: user._id}).sort({createdAt: -1}).populate("from").populate("to");
-    const posts = await (await DB_Post.find({author: user}).sort({createdAt: -1}).populate("author"));
+    const posts = await DB_Post.find({author: user}).sort({createdAt: -1}).populate("author").populate("comments");
 
     return {
         ...cleanUser(user.toObject()),

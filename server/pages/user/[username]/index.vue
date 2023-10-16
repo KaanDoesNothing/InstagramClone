@@ -8,7 +8,7 @@
                         <div class="flex flex-col">
                             <div class="flex flex-row">
                                 <label class="text-2xl">@{{ user.username }}</label>
-                                <button class="mx-2 font-bold btn btn-neutral btn-sm" @click="handleFollow" v-if="state.isLoggedIn && state.user.username !== user.username">{{ isFollowing ? "Unfollow" : "Follow" }}</button>
+                                <button class="mx-2 font-bold btn btn-neutral btn-sm rounded" @click="handleFollow" v-if="state.isLoggedIn && state.user.username !== user.username">{{ isFollowing ? "Unfollow" : "Follow" }}</button>
                             </div>
 
                             <label class="label">{{ user.description }}</label>
@@ -35,14 +35,14 @@
                 <div class="flex justify-between">
                     <label class="text-2xl">Posts</label>
                     <template v-if="state.isLoggedIn && state.user.username === user.username">
-                        <button class="btn btn-neutral btn-sm" v-if="viewType === 'posts'" @click="viewType = 'create'">Create post</button>
-                        <button class="btn btn-neutral btn-sm" v-if="viewType === 'create'" @click="viewType = 'posts'">Go Back</button>
+                        <button class="btn btn-neutral btn-sm rounded" v-if="viewType === 'posts'" @click="viewType = 'create'">Create post</button>
+                        <button class="btn btn-neutral btn-sm rounded" v-if="viewType === 'create'" @click="viewType = 'posts'">Go Back</button>
                     </template>
                 </div>
                 
 
                 <div class="flex flex-row mt-5 md:mt-10 justify-center">
-                    <div class="grid flex justify-center grid-cols-4 md:gap-0 md:p-4">
+                    <div class="grid justify-center grid-cols-4 md:gap-0 md:p-4">
                         <div class="rounded-lg" v-for="post in user.posts" v-if="viewType === 'posts'">
                             <RouterLink :to="`/user/${user.username}/posts/${post._id}`">
                                 <template v-if="!post.source.endsWith('.mp4')">
@@ -53,31 +53,6 @@
                                     <video class="md:h-60 md:w-60 object-cover" :src="post.source"/>
                                 </template>
                             </RouterLink>
-                            <!-- <img class="h-60 w-60 object-fit" :src="post.source"> -->
-                            <!-- <div class="card card-compact w-64 bg-base-100 shadow-xl">
-                                <figure>
-                                    <template v-if="!post.source.endsWith('.mp4')">
-                                        <img :src="post.source"/>
-                                    </template>
-
-                                    <template v-if="post.source.endsWith('.mp4')">
-                                        <video :src="post.source" controls/>
-                                    </template>
-                                </figure>
-                                <div class="card-body">
-                                    <h2 class="card-title">
-                                        <template v-for="part in post.description.split(' ')">
-                                            <template v-if="part.startsWith('@')">
-                                                <RouterLink class="text-blue-500" :to="`/user/${part.slice(1)}`" as="div">{{ part + " "}}</RouterLink>
-                                            </template>
-                                            <template v-if="!part.startsWith('@')">
-                                                {{ part + " " }}        
-                                            </template>
-                                        </template>
-                                    </h2>
-                                </div>
-                            </div> -->
-                            <!-- <img class="h-64" :src="post.source"> -->
                         </div>
                     </div>
 
@@ -93,7 +68,10 @@
                                 <textarea class="textarea p-1 mt-2 w-full" style="resize: none;" v-model="caption"></textarea>
                             </div>
 
-                            <button class="btn btn-sm w-full mt-2" type="submit">Post</button>
+                            <button class="btn btn-sm w-full mt-2 btn-load" type="submit">
+                                <span class="loading loading-spinner" v-if="isUpload"></span>
+                                <template v-if="!isUpload">Post</template>
+                            </button>
                             <!-- <textarea class="textarea textarea-bordered h-24" placeholder="Caption"></textarea> -->
                         </form>
                     </div>
@@ -111,9 +89,10 @@
     
     const user = ref<any>();
     const isFollowing = ref(false);
-    const viewType = ref("posts");
+    const viewType = ref<"posts" | "create">("posts");
     const img = ref();
     const caption = ref("");
+    const isUpload = ref(false);
 
     const fetchInformation = async () => {
         user.value = await fetchUser({username, token: state.token});
@@ -136,15 +115,19 @@
         const form = new FormData();
         form.append("upload", e.target.files[0]);
 
+        isUpload.value = true;
         const res = await $fetch<any>("https://cdn.kaanlikescoding.me/api/upload/file", {method: "POST", body: form, params: {key: "instapost"}});
 
         if(res.file) img.value = res.file.url.replace("/view/", "/");
+
+        isUpload.value = false;
     }
 
     const handlePost = async () => {
-        if(!img.value) return;
+        if(!img.value || isUpload.value) return;
 
         const res = await $fetch<any>("/api/actions/post/create", {body: {token: state.token, source: img.value, description: caption.value}, method: "POST"});
+        if(res.data) viewType.value = "create";
     }
 
     await fetchInformation();

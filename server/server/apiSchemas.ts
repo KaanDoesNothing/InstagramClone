@@ -13,3 +13,9 @@ export const ZPostSchema = z.object({
     source: z.string().url(),
     description: z.string().min(1)
 });
+
+export const ZCommentSchema = z.object({
+    token: ZTokenSchema,
+    _id: z.string(),
+    content: z.string()
+})
