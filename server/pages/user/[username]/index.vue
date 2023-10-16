@@ -1,8 +1,8 @@
 <template>
-    <div>
+    <div class="p-5 md:p-0">
         <div class="flex justify-center">
-            <div class="bg-base-200 p-5 w-2/3 rounded flex justify-between">
-                <div class="flex flex-row">
+            <div class="bg-base-200 flex-col md:flex-row p-5 md:w-2/3 rounded flex justify-between">
+                <div class="flex md:flex-row">
                     <img class="rounded w-32 h-32" :src="user.avatar">
                     <div class="px-5">
                         <div class="flex flex-col">
@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <div>
-                    <div class="stats stats-vertical shadow bg-base-200">
+                    <div class="stats sm:stats-vertical shadow bg-base-200">
                         <RouterLink class="stat" :to="`/user/${user.username}/followers`">
                             <div class="stat-title">Followers</div>
                             <div class="stat-value">{{ user.followers.length }}</div>
@@ -31,7 +31,7 @@
         </div>
 
         <div class="flex justify-center mt-10">
-            <div class="bg-base-200 p-5 w-2/3 rounded flex justify-between flex-col">
+            <div class="bg-base-200 p-5 w-screen md:w-2/3 rounded flex justify-between flex-col">
                 <div class="flex justify-between">
                     <label class="text-2xl">Posts</label>
                     <template v-if="state.isLoggedIn && state.user.username === user.username">
@@ -41,15 +41,17 @@
                 </div>
                 
 
-                <div class="flex flex-row mt-10 justify-center">
-                    <div class="m-1 p-2 bg-base-300 rounded-lg" v-for="post in user.posts" v-if="viewType === 'posts'">
-                        <div class="card card-compact w-64 bg-base-100 shadow-xl">
-                            <figure><img :src="post.source"/></figure>
-                            <div class="card-body">
-                                <h2 class="card-title">{{ post.description || "" }}</h2>
+                <div class="flex flex-row mt-5 md:mt-10 justify-center">
+                    <div class="grid flex justify-center md:grid-cols-4 md:gap-4 md:p-4">
+                        <div class="m-1 p-2 rounded-lg" v-for="post in user.posts" v-if="viewType === 'posts'">
+                            <div class="card card-compact w-64 bg-base-100 shadow-xl">
+                                <figure><img :src="post.source"/></figure>
+                                <div class="card-body">
+                                    <h2 class="card-title">{{ post.description || "" }}</h2>
+                                </div>
                             </div>
+                            <!-- <img class="h-64" :src="post.source"> -->
                         </div>
-                        <!-- <img class="h-64" :src="post.source"> -->
                     </div>
 
                     <div class="bg-base-300 w-2/3 flex justify-center" v-if="viewType === 'create'">
