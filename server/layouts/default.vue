@@ -1,4 +1,9 @@
 <template>
+    <Html data-theme="black">
+        <Head>
+            <Title>InstaPost</Title>
+        </Head>
+    </Html>
     <slot></slot>
 </template>
 

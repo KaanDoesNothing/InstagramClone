@@ -3,7 +3,7 @@
         <div class="flex justify-center">
             <div class="bg-base-200 flex-col md:flex-row p-5 md:w-2/3 rounded flex justify-between">
                 <div class="flex md:flex-row">
-                    <img class="rounded w-32 h-32" :src="user.avatar">
+                    <img class="rounded-full w-32 h-32" :src="user.avatar">
                     <div class="px-5">
                         <div class="flex flex-col">
                             <div class="flex flex-row">
@@ -42,9 +42,19 @@
                 
 
                 <div class="flex flex-row mt-5 md:mt-10 justify-center">
-                    <div class="grid flex justify-center md:grid-cols-4 md:gap-4 md:p-4">
-                        <div class="m-1 p-2 rounded-lg" v-for="post in user.posts" v-if="viewType === 'posts'">
-                            <div class="card card-compact w-64 bg-base-100 shadow-xl">
+                    <div class="grid flex justify-center grid-cols-4 md:gap-0 md:p-4">
+                        <div class="rounded-lg" v-for="post in user.posts" v-if="viewType === 'posts'">
+                            <RouterLink :to="`/user/${user.username}/posts/${post._id}`">
+                                <template v-if="!post.source.endsWith('.mp4')">
+                                    <img class="md:h-60 md:w-60 object-cover" :src="post.source">
+                                </template>
+
+                                <template v-if="post.source.endsWith('.mp4')">
+                                    <video class="md:h-60 md:w-60 object-cover" :src="post.source"/>
+                                </template>
+                            </RouterLink>
+                            <!-- <img class="h-60 w-60 object-fit" :src="post.source"> -->
+                            <!-- <div class="card card-compact w-64 bg-base-100 shadow-xl">
                                 <figure>
                                     <template v-if="!post.source.endsWith('.mp4')">
                                         <img :src="post.source"/>
@@ -58,7 +68,7 @@
                                     <h2 class="card-title">
                                         <template v-for="part in post.description.split(' ')">
                                             <template v-if="part.startsWith('@')">
-                                                <RouterLink class="text-blue-500" :to="`/user/${part.slice(1)}`" tag="div">{{ part + " "}}</RouterLink>
+                                                <RouterLink class="text-blue-500" :to="`/user/${part.slice(1)}`" as="div">{{ part + " "}}</RouterLink>
                                             </template>
                                             <template v-if="!part.startsWith('@')">
                                                 {{ part + " " }}        
@@ -66,7 +76,7 @@
                                         </template>
                                     </h2>
                                 </div>
-                            </div>
+                            </div> -->
                             <!-- <img class="h-64" :src="post.source"> -->
                         </div>
                     </div>
