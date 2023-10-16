@@ -55,7 +55,16 @@
                                     </template>
                                 </figure>
                                 <div class="card-body">
-                                    <h2 class="card-title">{{ post.description || "" }}</h2>
+                                    <h2 class="card-title">
+                                        <template v-for="part in post.description.split(' ')">
+                                            <template v-if="part.startsWith('@')">
+                                                <RouterLink class="text-blue-500" :to="`/user/${part.slice(1)}`" tag="div">{{ part + " "}}</RouterLink>
+                                            </template>
+                                            <template v-if="!part.startsWith('@')">
+                                                {{ part + " " }}        
+                                            </template>
+                                        </template>
+                                    </h2>
                                 </div>
                             </div>
                             <!-- <img class="h-64" :src="post.source"> -->
