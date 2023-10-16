@@ -6,7 +6,7 @@
                     <img class="rounded w-32 h-32" :src="user.avatar">
                     <div class="px-5">
                         <label class="text-2xl">@{{ user.username }}</label>
-                        <button class="text-2xl px-2 font-bold" @click="handleFollow" v-if="state.user.username !== user.username">{{ isFollowing ? "-" : "+" }}</button>
+                        <button class="text-2xl px-2 font-bold" @click="handleFollow" v-if="state.isLoggedIn && state.user.username !== user.username">{{ isFollowing ? "-" : "+" }}</button>
                     </div>
                 </div>
                 <div>
@@ -51,7 +51,7 @@
     const fetchInformation = async () => {
         user.value = await fetchUser({username, token: state.token});
 
-        isFollowing.value = user.value.followers.filter((row: any) => row.from._id === state.user._id).length > 0;
+        if(state.isLoggedIn) isFollowing.value = user.value.followers.filter((row: any) => row.from._id === state.user._id).length > 0;
     }
 
     const handleFollow = async () => {
