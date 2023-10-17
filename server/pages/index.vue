@@ -29,5 +29,6 @@
 </template>
 
 <script lang="ts" setup>
-    const posts = await $fetch<any>("/api/actions/recent", {method: "POST"});
+    const config = useRuntimeConfig();
+    const posts = await $fetch<any>(`${config.public.API}/general/recent/posts`);
 </script>

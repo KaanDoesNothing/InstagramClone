@@ -3,9 +3,9 @@
         <div class="flex justify-center flex-col">
             <div class="bg-base-200 min-w-full min-h-full p-5 rounded flex justify-between flex-col">
                 <div class="rounded flex flex-col">
-                    <RouterLink :to="`/user/${post.author.username}`" class="card-title flex flex-row">
-                        <img class="h-8 rounded-full" :src="post.author.avatar">
-                        <label class="label">{{ post.author.username }}</label>
+                    <RouterLink :to="`/user/${user.username}`" class="card-title flex flex-row">
+                        <img class="h-8 rounded-full" :src="user.avatar">
+                        <label class="label">{{ user.username }}</label>
                     </RouterLink>
 
                     <label class="label text-xl font-bold">{{ post.description }}</label>
@@ -48,17 +48,18 @@
 </template>
 
 <script lang="ts" setup>
+    const config = useRuntimeConfig();
     const state = useGlobalState();
 
     const route = useRoute();
     const username = route.params.username as string;
     
-    const user = ref(await fetchUser({username, token: state.token}));
+    const user = ref(await fetchUser(username));
     const content = ref("");
     const comments = ref([]);
 
     const post = user.value.posts.filter((post: any) => post._id === route.params.post as string)[0];
-    comments.value = (await $fetch<any>("/api/actions/post/comment/list", {body: {_id: post._id}, method: "POST"})).data;
+    comments.value = (await $fetch<any>(`${config.public.API}/user/${username}/post/${post._id}/comments`)).data;
 
     const handleComment = async () => {
         const res = await $fetch<any>("/api/actions/post/comment/create", {body: {token: state.token, _id: post._id, content: content.value}, method: "POST"});

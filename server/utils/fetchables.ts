@@ -1,5 +1,6 @@
-export const fetchUser = async ({token, username}: {token?: string, username: string}) => {
-    const res = await $fetch<any>(`/api/users/${encodeURIComponent(username)}`, {body: {token}, method: "POST"});
+export const fetchUser = async (username: string) => {
+    const config = useRuntimeConfig();
+    const res = await $fetch<any>(`${config.public.API}/user/${username}`)
 
     return res.data;
 }

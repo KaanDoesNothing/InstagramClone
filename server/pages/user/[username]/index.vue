@@ -82,6 +82,7 @@
 </template>
 
 <script lang="ts" setup>
+    const config = useRuntimeConfig();
     const state = useGlobalState();
 
     const route = useRoute();
@@ -95,7 +96,7 @@
     const isUpload = ref(false);
 
     const fetchInformation = async () => {
-        user.value = await fetchUser({username, token: state.token});
+        user.value = await fetchUser(username);
 
         if(state.isLoggedIn) isFollowing.value = user.value.followers.filter((row: any) => row.from._id === state.user._id).length > 0;
     }
@@ -126,8 +127,9 @@
     const handlePost = async () => {
         if(!img.value || isUpload.value) return;
 
-        const res = await $fetch<any>("/api/actions/post/create", {body: {token: state.token, source: img.value, description: caption.value}, method: "POST"});
-        if(res.data) viewType.value = "create";
+        const res = await $fetch<any>(`${config.public.API}/user/post`, {body: {source: img.value, content: caption.value}, headers: {Authorization: state.token as string}, method: "PUT"});
+        if(res.data) viewType.value = "posts";
+        await fetchInformation();
     }
 
     await fetchInformation();

@@ -22,5 +22,5 @@
     const route = useRoute();
     const username = route.params.username as string;
     
-    const user = ref(await fetchUser({username, token: state.token}));
+    const user = ref(await fetchUser(username));
 </script>

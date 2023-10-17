@@ -5,6 +5,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     app: {
       env: process.env
+    },
+    public: {
+      API: process.env.API
     }
   },
   nitro: {

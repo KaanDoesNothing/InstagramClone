@@ -22,17 +22,18 @@
 
 <script lang="ts" setup>
     import { ref } from "vue";
-
+    
+    const config = useRuntimeConfig();
     const state = useGlobalState();
 
     const email = ref("");
     const password = ref("");
 
     const handleLogin = async () => {
-        const res = await $fetch<any>("/api/auth/login", {body: {email: email.value, password: password.value}, method: "POST"});
+        const res = await $fetch<any>(`${config.public.API}/auth/login`, {body: {email: email.value, password: password.value}, method: "POST"});
 
-        if(res.data.token) {
-            await state.authenticate(res.data.token);
+        if(res.data) {
+            await state.authenticate(res.data);
 
             useRouter().push("/");
         }

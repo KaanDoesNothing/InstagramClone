@@ -35,7 +35,7 @@ export const useGlobalState = defineStore("globalState", {
         async fetchUser() {
             const config = useRuntimeConfig();
 
-            const res = await $fetch<any>(`/api/users/me`, {body: {token: this.token}, method: "POST"}).catch(err => console.log("Unable to fetch user data"));
+            const res = await $fetch<any>(`${config.public.API}/user/me`, {headers: {"Authorization": this.token as string}}).catch(err => console.log("Unable to fetch user data"));
 
             if(!res) return;
 
