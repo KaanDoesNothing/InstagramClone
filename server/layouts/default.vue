@@ -4,7 +4,10 @@
             <Title>InstaPost</Title>
         </Head>
     </Html>
-    <slot></slot>
+    
+    <div class="text-white">
+        <slot></slot> 
+    </div>
 </template>
 
 <script lang="ts" setup>

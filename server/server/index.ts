@@ -1,5 +1,5 @@
-import { initDatabase } from "@/server/db/index";
+// import { initDatabase } from "@/server/db/index";
 
-export default async () => {
-    await initDatabase();
-}
+// export default async () => {
+//     await initDatabase();
+// }
