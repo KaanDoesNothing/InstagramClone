@@ -30,11 +30,19 @@ export const prepareUser = async (user: any): Promise<{
     const followers = await DB_Follower.find({to: user._id}).sort({createdAt: -1}).populate("from", {username: true, avatar: true}).populate("to", {username: true, avatar: true}).lean();
     const following = await DB_Follower.find({from: user._id}).sort({createdAt: -1}).populate("from", {username: true, avatar: true}).populate("to", {username: true, avatar: true}).lean();
     const posts = await DB_Post.find({author: user}).sort({createdAt: -1}).lean();
+    const friends = followers.map(row => {
+        const match = following.filter(row1 => row.from === row1.from);
+
+        if(match) {
+            return row.from;
+        }
+    });
 
     return {
         ...user,
         followers,
         following: following,
-        posts
+        posts,
+        friends
     }
 }
