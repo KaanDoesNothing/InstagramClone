@@ -18,7 +18,6 @@
                 <template v-if="post.source.endsWith('.mp4')">
                     <video class="object-contain w-screen" :src="post.source" controls/>
                 </template>
-                <!-- <img :src="post.source" class="object-contain w-screen"> -->
             </div>
             <div class="flex justify-between p-2">
                 <div>

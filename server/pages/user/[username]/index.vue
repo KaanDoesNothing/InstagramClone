@@ -105,7 +105,7 @@
         if(isFollowing.value) {
             const res = await $fetch("/api/actions/unfollow", {body: {token: state.token, target: user.value.username}, method: "POST"});
         }else {
-            const res = await $fetch("/api/actions/follow", {body: {token: state.token, target: user.value.username}, method: "POST"});
+            const res = await $fetch(`${config.public.API}/user/${user.value.username}/follow`, {headers: {Authorization: state.token as string}, method: "PUT"});
         }
 
         await fetchInformation();

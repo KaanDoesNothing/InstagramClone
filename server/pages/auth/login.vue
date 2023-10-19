@@ -15,6 +15,10 @@
                 <input class="input input-bordered" placeholder="Type here" type="password" v-model="password">
                 <br>
                 <button class="btn" type="submit" @click.prevent="handleLogin">Sign in</button>
+
+                <br>
+                <!-- <RouterLink to="/" class="btn btn-sm">Continue as Guest</RouterLink>
+                <RouterLink to="/" class="btn btn-sm">Register</RouterLink> -->
             </form>
         </div>
     </div>

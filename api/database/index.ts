@@ -1,5 +1,5 @@
 import {mongoose} from "../npm.ts";
-import {CommentSchema, FollowerSchema, PostSchema, UserSchema} from "./schemas.ts";
+import {CommentSchema, FollowerSchema, PostSchema, StorySchema, UserSchema} from "./schemas.ts";
 import { ServerConfig } from "../config.ts";
 
 //@ts-ignore
@@ -7,6 +7,7 @@ export const initDatabase = () => mongoose.connect(`mongodb://${ServerConfig.MON
 
 export const DB_User = mongoose.model("User", UserSchema);
 export const DB_Follower = mongoose.model("Follower", FollowerSchema);
+export const DB_Story = mongoose.model("Story", StorySchema);
 export const DB_Post = mongoose.model("Post", PostSchema);
 export const DB_Comment = mongoose.model("Comment", CommentSchema);
 
@@ -30,19 +31,25 @@ export const prepareUser = async (user: any): Promise<{
     const followers = await DB_Follower.find({to: user._id}).sort({createdAt: -1}).populate("from", {username: true, avatar: true}).populate("to", {username: true, avatar: true}).lean();
     const following = await DB_Follower.find({from: user._id}).sort({createdAt: -1}).populate("from", {username: true, avatar: true}).populate("to", {username: true, avatar: true}).lean();
     const posts = await DB_Post.find({author: user}).sort({createdAt: -1}).lean();
-    const friends = followers.map(row => {
+    const friends = await Promise.all(followers.map(async row => {
         const match = following.filter(row1 => row.from === row1.from);
 
         if(match) {
-            return row.from;
+            return {
+                ...row.from,
+                stories: await DB_Story.find({author: row.from._id, createdAt:{$gte: new Date(Date.now() - 24*60*60*1000)}}).sort({createdAt: -1}).lean()
+            };
         }
-    });
+    }));
+
+    const stories = await DB_Story.find({author: user._id, createdAt:{$gte: new Date(Date.now() - 24*60*60*1000)}}).sort({createdAt: -1}).lean();
 
     return {
         ...user,
         followers,
         following: following,
         posts,
-        friends
+        friends,
+        stories
     }
 }

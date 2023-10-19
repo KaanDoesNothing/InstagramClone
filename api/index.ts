@@ -1,5 +1,5 @@
 import {Application, Router} from "oak/mod.ts"
-import { DB_Comment, DB_Post, DB_User, initDatabase, prepareUser } from "./database/index.ts"
+import { DB_Comment, DB_Follower, DB_Post, DB_Story, DB_User, initDatabase, prepareUser } from "./database/index.ts"
 import { requiresToken } from "./middleware/index.ts";
 import { oakCors } from "cors/mod.ts";
 import { comparePassword } from "./utils.ts";
@@ -24,6 +24,20 @@ router.get("/user/me", requiresToken, async (ctx) => {
     ctx.response.body = {data: user};
 });
 
+router.put("/user/story", requiresToken, async (ctx) => {
+    const body = await ctx.request.body({type: "json"}).value;
+
+    const user = await DB_User.findOne({username: ctx.session.username});
+
+    await DB_Story.create({
+        author: user,
+        source: body.source,
+        content: body.content
+    });
+
+    ctx.response.body = {data: true};
+});
+
 router.put("/user/post", requiresToken, async (ctx) => {
     const body = await ctx.request.body({type: "json"}).value;
 
@@ -37,6 +51,18 @@ router.put("/user/post", requiresToken, async (ctx) => {
 
     ctx.response.body = {data: true};
 });
+
+router.put("/user/:username/follow", requiresToken, async (ctx) => {
+    const author = await DB_User.findOne({username: ctx.session.username});
+    const user = await DB_User.findOne({username: ctx.params.username});
+
+    await DB_Follower.create({
+        from: author,
+        to: user
+    });
+
+    ctx.response.body = {data: true};
+})
 
 router.get("/user/:username", async (ctx) => {
     const user = await DB_User.findOne({username: ctx.params.username}, {username: true, avatar: true}).lean();
