@@ -5,16 +5,15 @@
         </div>
         <div class="flex-none">
             <ul class="menu menu-horizontal px-1 btn-group">
-                <RouterLink class="btn btn-sm btn-ghost" to="/notifications"><Icon name="ic:outline-favorite-border" size="24px"></Icon></RouterLink>
-                <RouterLink class="btn btn-sm btn-ghost" to="/notifications"><Icon name="ic:baseline-send" size="24px"></Icon></RouterLink>
-                <!-- <template v-if="!state.isLoggedIn">
+                <template v-if="!state.isLoggedIn">
                     <li><RouterLink to="/auth/login">Login</RouterLink></li>
                     <li><RouterLink to="/auth/register">Register</RouterLink></li>
                 </template>
 
                 <template v-if="state.isLoggedIn">
-                    <li><RouterLink :to="`/user/${state.user.username}`">@{{ state.user.username }}</RouterLink></li>
-                </template> -->
+                    <RouterLink class="btn btn-sm btn-ghost" to="/notifications"><Icon name="ic:outline-favorite-border" size="24px"></Icon></RouterLink>
+                <RouterLink class="btn btn-sm btn-ghost" to="/notifications"><Icon name="ic:baseline-send" size="24px"></Icon></RouterLink>
+                </template>
             </ul>
         </div>
     </div>
