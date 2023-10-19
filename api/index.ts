@@ -77,7 +77,7 @@ router.delete("/user/:username/follow", requiresToken, async (ctx) => {
 })
 
 router.get("/user/:username", async (ctx) => {
-    const user = await DB_User.findOne({username: ctx.params.username}, {username: true, avatar: true}).lean();
+    const user = await DB_User.findOne({username: ctx.params.username}, {username: true, avatar: true, description: true}).lean();
     const prepared = await prepareUser(user);
 
     ctx.response.body = {data: prepared};

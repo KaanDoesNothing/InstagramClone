@@ -22,6 +22,9 @@
                 </RouterLink>
             </div>
         </div>
+        <div class="flex justify-center">
+            <label class="label font-bold">{{ user.description }}</label>
+        </div>
 
         <div>
             <div class="btn-group max-w-screen w-screen p-5" v-if="state.isLoggedIn && state.user.username !== user.username">
