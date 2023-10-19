@@ -37,7 +37,7 @@ export const prepareUser = async (user: any): Promise<{
         if(match) {
             return {
                 ...row.from,
-                stories: await DB_Story.find({author: row.from._id, createdAt:{$gte: new Date(Date.now() - 24*60*60*1000)}}).sort({createdAt: -1}).lean()
+                stories: await DB_Story.find({author: row.from._id, createdAt:{$gte: new Date(Date.now() - 24*60*60*1000)}}).sort({createdAt: 1}).lean()
             };
         }
     }));

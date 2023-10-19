@@ -39,4 +39,6 @@
             await router.push("/");
         }
     }
+
+    if(user.stories.length === 0) router.back();
 </script>
