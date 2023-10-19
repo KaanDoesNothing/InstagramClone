@@ -3,7 +3,7 @@
         <div class="p-5 flex justify-between">
             <div>
                 <div class="label flex flex-col">
-                    <img class="rounded-full w-24 h-24 align-middle" :src="user.avatar">
+                    <img class="rounded-full max-w-24 max-h-24 min-w-24 h-24 align-middle object-cover" :src="user.avatar">
                     <label class="font-light mt-1 f">@{{ user.username }}</label>
                 </div>
             </div>
@@ -61,14 +61,12 @@
 </template>
 
 <script lang="ts" setup>
-    const config = useRuntimeConfig();
     const state = useGlobalState();
 
     const route = useRoute();
     const username = route.params.username as string;
     
     const user = ref(await fetchUser(username));
-    const viewType = ref<"posts" | "create">("posts");
 
     const isFollowing = computed(() => {
         if(state.isLoggedIn) {
@@ -77,8 +75,12 @@
     })
 
     const handleFollow = async () => {
-        await $fetch(`${config.public.API}/user/${user.value.username}/follow`, {headers: {Authorization: state.token as string}, method: isFollowing.value ? "DELETE" : "PUT"});
-        await state.fetchUser();
+        if(isFollowing.value) {
+            await state.unfollowUser(user.value.username);
+        }else if(!isFollowing.value) {
+            await state.followUser(user.value.username);
+        }
+
         user.value = await fetchUser(username);
     }
 </script>
