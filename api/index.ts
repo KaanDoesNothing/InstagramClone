@@ -16,7 +16,7 @@ const router = new Router({prefix: "/api/v1"});
 
 router.get("/", (ctx) => {
     ctx.response.body = {hello: "world"};
-})
+});
 
 router.get("/user/me", requiresToken, async (ctx) => {
     const user = await prepareUser(ctx.session);

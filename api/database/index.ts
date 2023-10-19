@@ -30,7 +30,7 @@ export const prepareUser = async (user: any): Promise<{
     if(!user) throw "err";
     const followers = await DB_Follower.find({to: user._id}).sort({createdAt: -1}).populate("from", {username: true, avatar: true}).populate("to", {username: true, avatar: true}).lean();
     const following = await DB_Follower.find({from: user._id}).sort({createdAt: -1}).populate("from", {username: true, avatar: true}).populate("to", {username: true, avatar: true}).lean();
-    const posts = await DB_Post.find({author: user}).sort({createdAt: -1}).lean();
+    const posts = await DB_Post.find({author: user}).sort({createdAt: -1}).populate("author").lean();
     const friends = await Promise.all(followers.map(async row => {
         const match = following.filter(row1 => row.from === row1.from);
 

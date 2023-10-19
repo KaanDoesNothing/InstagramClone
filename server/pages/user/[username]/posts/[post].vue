@@ -1,5 +1,6 @@
 <template>
-    <div>
+    <Post :post="post"></Post>
+    <div class="hidden">
         <div class="flex justify-center flex-col">
             <div class="bg-base-200 min-w-full min-h-full p-5 rounded flex justify-between flex-col">
                 <div class="rounded flex flex-col">
