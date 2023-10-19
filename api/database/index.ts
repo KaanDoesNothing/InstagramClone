@@ -1,5 +1,5 @@
 import {mongoose} from "../npm.ts";
-import {CommentSchema, FollowerSchema, PostSchema, StorySchema, UserSchema} from "./schemas.ts";
+import {CommentSchema, FollowerSchema, PostSchema, PostUserDataSchema, StorySchema, UserSchema} from "./schemas.ts";
 import { ServerConfig } from "../config.ts";
 
 //@ts-ignore
@@ -9,6 +9,7 @@ export const DB_User = mongoose.model("User", UserSchema);
 export const DB_Follower = mongoose.model("Follower", FollowerSchema);
 export const DB_Story = mongoose.model("Story", StorySchema);
 export const DB_Post = mongoose.model("Post", PostSchema);
+export const DB_PostUserData = mongoose.model("PostUserData", PostUserDataSchema);
 export const DB_Comment = mongoose.model("Comment", CommentSchema);
 
 export const cleanUser = (user: any) => {
@@ -43,6 +44,7 @@ export const prepareUser = async (user: any): Promise<{
     }));
 
     const stories = await DB_Story.find({author: user._id, createdAt:{$gte: new Date(Date.now() - 24*60*60*1000)}}).sort({createdAt: -1}).lean();
+    const postUserData = await DB_PostUserData.find({author: user._id}).populate("post").lean();
 
     return {
         ...user,
@@ -50,6 +52,7 @@ export const prepareUser = async (user: any): Promise<{
         following: following,
         posts,
         friends,
-        stories
+        stories,
+        postUserData
     }
 }

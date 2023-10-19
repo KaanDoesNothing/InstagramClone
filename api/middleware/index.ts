@@ -9,7 +9,9 @@ declare module "oak/mod.ts" {
 
 export const requiresToken = async (ctx: Context, next) => {
     const token = ctx.request.headers.get("Authorization");
-    if(!token) {
+    const isNotRequired = ctx.request.headers.get("isNotRequired");
+
+    if(!token && !isNotRequired) {
         ctx.response.body = {error: "Token required"};
         return;
     }

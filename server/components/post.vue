@@ -18,13 +18,13 @@
     </div>
     <div class="flex justify-between p-2">
         <div>
-            <button class="btn btn-sm btn-ghost"><Icon name="ic:outline-favorite-border" size="24px"></Icon></button>
+            <button @click="handleLike" class="btn btn-sm btn-ghost"><Icon :name="state.getPostData(post._id)?.liked ? 'ic:outline-favorite' : 'ic:outline-favorite-border'" size="24px"></Icon></button>
             <button class="btn btn-sm btn-ghost"><Icon name="ic:baseline-chat-bubble-outline" size="24px"></Icon></button>
             <button class="btn btn-sm btn-ghost"><Icon name="ic:baseline-send" size="24px"></Icon></button>
         </div>
 
         <div>
-            <button class="btn btn-sm btn-ghost"><Icon name="ic:outline-bookmark-add" size="24px"></Icon></button>
+            <button class="btn btn-sm btn-ghost" @click="handleSave"><Icon :name="state.getPostData(post._id)?.saved ? 'ic:outline-bookmark' : 'ic:outline-bookmark-add'" size="24px"></Icon></button>
         </div>
     </div>
     <div class="btn btn-ghost btn-sm justify-normal">
@@ -36,9 +36,24 @@
 </template>
 
 <script setup lang="ts">
+    const config = useRuntimeConfig();
+    const state = useGlobalState();
+    
     const props = defineProps<{
     post?: any
     }>()
+
+    const handleLike = async () => {
+        await $fetch<any>(`${config.public.API}/post/${post._id}/like`, {headers: {"Authorization": state.token as string}, method: state.getPostData(post._id)?.liked ? "DELETE" : "PUT"});
+    
+        await state.fetchUser();
+    }
+
+    const handleSave = async () => {
+        await $fetch<any>(`${config.public.API}/post/${post._id}/save`, {headers: {"Authorization": state.token as string}, method: state.getPostData(post._id)?.saved ? "DELETE" : "PUT"});
+    
+        await state.fetchUser();
+    }
 
     const post = props.post;
 </script>

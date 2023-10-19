@@ -1,7 +1,7 @@
 <template>
     <Storybar></Storybar>
     <div class="flex mt-2 flex-col">
-        <div v-for="post in posts.filter((post: any) => post.author)" class="min-w-screen">
+        <div v-for="post in state.posts.filter((post: any) => post.author)" class="min-w-screen">
             <Post :post="post"></Post>
         </div>
         <!-- <div class="bg-base-200 w-2/3">
@@ -33,5 +33,6 @@
 
 <script lang="ts" setup>
     const config = useRuntimeConfig();
-    const posts = (await $fetch<any>(`${config.public.API}/general/recent/posts`)).data;
+    const state = useGlobalState();
+    await state.fetchPosts();
 </script>

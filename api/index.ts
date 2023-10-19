@@ -1,5 +1,5 @@
 import {Application, Router} from "oak/mod.ts"
-import { DB_Comment, DB_Follower, DB_Post, DB_Story, DB_User, initDatabase, prepareUser } from "./database/index.ts"
+import { DB_Comment, DB_Follower, DB_Post, DB_PostUserData, DB_Story, DB_User, initDatabase, prepareUser } from "./database/index.ts"
 import { requiresToken } from "./middleware/index.ts";
 import { oakCors } from "cors/mod.ts";
 import { comparePassword } from "./utils.ts";
@@ -89,6 +89,76 @@ router.get("/user/:username/posts", async (ctx) => {
 
     ctx.response.body = {data: posts};
 });
+
+router.put("/post/:post/like", requiresToken, async (ctx) => {
+    const author = await DB_User.findOne({username: ctx.session.username});
+    const post = await DB_Post.findOne({_id: ctx.params.post});
+    const postData = await DB_PostUserData.findOne({author, post});
+
+    if(postData) {
+        postData.liked = true;
+        await postData.save();
+    }else {
+        await DB_PostUserData.create({
+            author,
+            post,
+            liked: true,
+            saved: false
+        });
+    }
+
+    ctx.response.body = {data: true};
+});
+
+router.delete("/post/:post/like", requiresToken, async (ctx) => {
+    const author = await DB_User.findOne({username: ctx.session.username});
+    const post = await DB_Post.findOne({_id: ctx.params.post});
+    const postData = await DB_PostUserData.findOne({author, post});
+
+    if(postData) {
+        postData.liked = false;
+        await postData.save();
+    }
+
+    ctx.response.body = {data: true};
+});
+
+router.put("/post/:post/save", requiresToken, async (ctx) => {
+    const author = await DB_User.findOne({username: ctx.session.username});
+    const post = await DB_Post.findOne({_id: ctx.params.post});
+    const postData = await DB_PostUserData.findOne({author, post});
+
+    if(postData) {
+        postData.saved = true;
+        await postData.save();
+    }else {
+        await DB_PostUserData.create({
+            author,
+            post,
+            liked: false,
+            saved: true
+        });
+    }
+
+    ctx.response.body = {data: true};
+});
+
+router.delete("/post/:post/save", requiresToken, async (ctx) => {
+    const author = await DB_User.findOne({username: ctx.session.username});
+    const post = await DB_Post.findOne({_id: ctx.params.post});
+    const postData = await DB_PostUserData.findOne({author, post});
+
+    if(postData) {
+        postData.saved = false;
+        await postData.save();
+    }
+
+    ctx.response.body = {data: true};
+});
+
+router.get("/post/:post", requiresToken, async (ctx) => {
+
+})
 
 router.get("/user/:username/post/:id/comments", async (ctx) => {
     const post = await DB_Post.findOne({_id: ctx.params.id});

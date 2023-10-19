@@ -3,12 +3,13 @@ import {defineStore} from "pinia";
 interface iGlobalState {
     token: string | undefined,
     user: any;
-    isLoggedIn: boolean
+    isLoggedIn: boolean;
+    posts: any;
 }
 
 export const useGlobalState = defineStore("globalState", {
     state: (): iGlobalState => {
-        return {token: undefined, user: undefined, isLoggedIn: false}
+        return {token: undefined, user: undefined, isLoggedIn: false, posts: undefined}
     },
     actions: {
         async authenticate(token?: string): Promise<boolean> {
@@ -43,6 +44,20 @@ export const useGlobalState = defineStore("globalState", {
                 this.user = res.data;
                 this.isLoggedIn = true;
             }
+        },
+        async fetchPosts() {
+            const config = useRuntimeConfig();
+
+            const res = await $fetch<any>(`${config.public.API}/general/recent/posts`)
+
+            if(!res) return;
+
+            if(res.data) {
+                this.posts = res.data;
+            }
+        },
+        getPostData(id: string) {
+            return this.user.postUserData.filter((row: any) => row.post._id === id)[0];
         }
     }
 });

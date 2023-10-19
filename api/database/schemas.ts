@@ -27,7 +27,15 @@ export const PostSchema = new mongoose.Schema({
     author: {type: mongoose.SchemaTypes.ObjectId, ref: "User", required: true},
     source: {type: mongoose.SchemaTypes.String, required: true},
     description: {type: mongoose.SchemaTypes.String, required: true, default: ""},
-    comments: [{type: mongoose.SchemaTypes.ObjectId, ref: "Comment", required: true}]
+    comments: [{type: mongoose.SchemaTypes.ObjectId, ref: "Comment", required: true}],
+    postUserData: [{type: mongoose.SchemaTypes.ObjectId, ref: "PostUserDataSchema", required: true}]
+}, {timestamps: true});
+
+export const PostUserDataSchema = new mongoose.Schema({
+    author: {type: mongoose.SchemaTypes.ObjectId, ref: "User", required: true},
+    post: {type: mongoose.SchemaTypes.ObjectId, ref: "Post", required: true},
+    liked: {type: mongoose.SchemaTypes.Boolean, default: false},
+    saved: {type: mongoose.SchemaTypes.Boolean, default: false}
 }, {timestamps: true});
 
 export const CommentSchema = new mongoose.Schema({
