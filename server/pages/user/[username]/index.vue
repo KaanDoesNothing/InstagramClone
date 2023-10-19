@@ -25,8 +25,10 @@
 
         <div>
             <div class="btn-group max-w-screen w-screen p-5">
-                <button class="btn btn-sm w-1/2 mx-1">Following</button>
-                <button class="btn btn-sm w-1/2 mx-1">Message</button>
+                <template v-if="state.isLoggedIn">
+                    <button class="btn btn-sm w-1/2 mx-1" @click="handleFollow" v-if="state.isLoggedIn && state.user.username !== user.username">{{ isFollowing ? "Unfollow" : "Follow" }}</button>
+                    <button class="btn btn-sm w-1/2 mx-1">Message</button>
+                </template>
             </div>
         </div>
 
@@ -77,23 +79,6 @@
                 </div>
             </div>      
         </div>
-            <!-- <div class="flex md:flex-row">
-                <img class="rounded-full w-24 h-24" :src="user.avatar">
-                <div class="px-5">
-                    <div class="flex flex-col">
-                        <div class="flex flex-row">
-                            <label class="text-2xl">@{{ user.username }}</label>
-                            <button class="mx-2 font-bold btn btn-neutral btn-sm rounded" @click="handleFollow" v-if="state.isLoggedIn && state.user.username !== user.username">{{ isFollowing ? "Unfollow" : "Follow" }}</button>
-                        </div>
-
-                        <label class="label">{{ user.description }}</label>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-1">
-                <label class="text-md">@{{ user.username }}</label>
-            </div> -->
-        <!-- </div> -->
     </div>
 
     <div class="p-5 md:p-0 hidden">
@@ -199,11 +184,12 @@
 
     const handleFollow = async () => {
         if(isFollowing.value) {
-            const res = await $fetch("/api/actions/unfollow", {body: {token: state.token, target: user.value.username}, method: "POST"});
+            const res = await $fetch(`${config.public.API}/user/${user.value.username}/follow`, {headers: {Authorization: state.token as string}, method: "DELETE"});
         }else {
             const res = await $fetch(`${config.public.API}/user/${user.value.username}/follow`, {headers: {Authorization: state.token as string}, method: "PUT"});
         }
 
+        await state.fetchUser();
         await fetchInformation();
     }
 

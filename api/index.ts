@@ -62,6 +62,18 @@ router.put("/user/:username/follow", requiresToken, async (ctx) => {
     });
 
     ctx.response.body = {data: true};
+});
+
+router.delete("/user/:username/follow", requiresToken, async (ctx) => {
+    const author = await DB_User.findOne({username: ctx.session.username});
+    const user = await DB_User.findOne({username: ctx.params.username});
+
+    await DB_Follower.deleteOne({
+        from: author,
+        to: user
+    });
+
+    ctx.response.body = {data: true};
 })
 
 router.get("/user/:username", async (ctx) => {
