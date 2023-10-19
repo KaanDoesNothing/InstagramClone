@@ -14,18 +14,25 @@
         </div>
 
         <div class="align-middle h-screen w-screen" @click="handlePosition">
-            <img class=" min-w-full min-h-full object-contain" :src="user.stories[position].source" v-if="user.stories.length > 0">
+            <template v-if="!user.stories[position].source.endsWith('.mp4')">
+                <img class=" min-w-full min-h-full object-contain" :src="user.stories[position].source" v-if="user.stories.length > 0">
+            </template>
+
+            <template v-if="user.stories[position].source.endsWith('.mp4')">
+                <video autoplay controls class="py-20 min-w-full min-h-full object-contain" :src="user.stories[position].source" v-if="user.stories.length > 0"></video>
+            </template>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
+    const config = useRuntimeConfig();
     const state = useGlobalState();
 
     const route = useRoute();
     const router = useRouter();
 
-    const user = state.user.friends.filter((friend: any) => friend.username === route.params.username)[0];
+    const user = (await $fetch<any>(`${config.public.API}/user/${route.params.username}`)).data;
     const position = ref(0);
 
     definePageMeta({
