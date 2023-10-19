@@ -57,7 +57,8 @@ export const useGlobalState = defineStore("globalState", {
             }
         },
         getPostData(id: string) {
-            return this.user.postUserData.filter((row: any) => row.post._id === id)[0];
+            if(this.isLoggedIn) return this.user.postUserData.filter((row: any) => row.post._id === id)[0];
+            return {liked: false, saved: false}
         }
     }
 });
