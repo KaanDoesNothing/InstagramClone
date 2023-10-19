@@ -1,32 +1,7 @@
 <template>
     <Post :post="post"></Post>
     <div class="hidden">
-        <div class="flex justify-center flex-col">
-            <div class="bg-base-200 min-w-full min-h-full p-5 rounded flex justify-between flex-col">
-                <div class="rounded flex flex-col">
-                    <RouterLink :to="`/user/${user.username}`" class="card-title flex flex-row">
-                        <img class="h-8 rounded-full" :src="user.avatar">
-                        <label class="label">{{ user.username }}</label>
-                    </RouterLink>
-
-                    <label class="label text-xl font-bold">{{ post.description }}</label>
-                    <template v-if="!post.source.endsWith('.mp4')">
-                        <img :src="post.source">
-                    </template>
-
-                    <template v-if="post.source.endsWith('.mp4')">
-                        <video :src="post.source" controls/>
-                    </template>
-                    
-                    <!-- <div class="flex justify-center mt-5">
-                        <div class="btn-group">
-                            <button class="btn">Like</button>
-                            <button class="btn">Save</button>
-                        </div>
-                    </div> -->
-                </div>
-            </div>
-
+        <div>
             <div class="bg-base-200 min-w-full min-h-full p-5 mt-5 rounded flex justify-between flex-col">
                 <label class="text-xl">Comments</label>
 

@@ -41,8 +41,4 @@
     }>()
 
     const post = props.post;
-
-    console.log(post);
-
-    // console.log(props.post)
 </script>
