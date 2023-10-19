@@ -1,5 +1,5 @@
 import {Application, Router} from "oak/mod.ts"
-import { DB_Comment, DB_Follower, DB_Post, DB_PostUserData, DB_Story, DB_User, initDatabase, prepareUser } from "./database/index.ts"
+import { DB_Comment, DB_Follower, DB_Post, DB_PostUserData, DB_Story, DB_User, initDatabase, preparePost, prepareUser } from "./database/index.ts"
 import { requiresToken } from "./middleware/index.ts";
 import { oakCors } from "cors/mod.ts";
 import { comparePassword } from "./utils.ts";
@@ -102,8 +102,7 @@ router.put("/post/:post/like", requiresToken, async (ctx) => {
         await DB_PostUserData.create({
             author,
             post,
-            liked: true,
-            saved: false
+            liked: true
         });
     }
 
@@ -135,7 +134,6 @@ router.put("/post/:post/save", requiresToken, async (ctx) => {
         await DB_PostUserData.create({
             author,
             post,
-            liked: false,
             saved: true
         });
     }
@@ -168,9 +166,9 @@ router.get("/user/:username/post/:id/comments", async (ctx) => {
 });
 
 router.get("/general/recent/posts", async (ctx) => {
-    const posts = await DB_Post.find().sort({createdAt: -1}).populate("author", {username: true, avatar: true}).lean();
+    const posts = await DB_Post.find().populate("author", {username: true, avatar: true}).sort({createdAt: -1});
 
-    ctx.response.body = {data: posts};
+    ctx.response.body = {data: await Promise.all(posts.map(post => preparePost(post)))};
 });
 
 router.post("/auth/login", async (ctx) => {

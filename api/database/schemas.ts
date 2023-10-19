@@ -28,7 +28,7 @@ export const PostSchema = new mongoose.Schema({
     source: {type: mongoose.SchemaTypes.String, required: true},
     description: {type: mongoose.SchemaTypes.String, required: true, default: ""},
     comments: [{type: mongoose.SchemaTypes.ObjectId, ref: "Comment", required: true}],
-    postUserData: [{type: mongoose.SchemaTypes.ObjectId, ref: "PostUserDataSchema", required: true}]
+    postUserData: [{type: mongoose.SchemaTypes.ObjectId, ref: "PostUserData"}]
 }, {timestamps: true});
 
 export const PostUserDataSchema = new mongoose.Schema({
