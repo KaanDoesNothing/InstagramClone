@@ -43,3 +43,9 @@ export const CommentSchema = new mongoose.Schema({
     post: {type: mongoose.SchemaTypes.ObjectId, ref: "Post", required: true},
     content: {type: mongoose.SchemaTypes.String, required: true}
 }, {timestamps: true});
+
+export const ChatMessageSchema = new mongoose.Schema({
+    from: {type: mongoose.SchemaTypes.ObjectId, ref: "User"},
+    to: {type: mongoose.SchemaTypes.ObjectId, ref: "User"},
+    content: {type: mongoose.SchemaTypes.String, required: true}
+});

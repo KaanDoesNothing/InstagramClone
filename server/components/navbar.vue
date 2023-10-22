@@ -13,7 +13,7 @@
                 <template v-if="state.isLoggedIn">
                     <RouterLink :to="`/user/${state.user.username}`"><img :src="state.user.avatar" class="h-7 w-7 rounded-full"></RouterLink>
                     <RouterLink class="btn btn-sm btn-ghost" to="/notifications"><Icon name="ic:outline-favorite-border" size="24px"></Icon></RouterLink>
-                    <RouterLink class="btn btn-sm btn-ghost" to="/notifications"><Icon name="ic:baseline-send" size="24px"></Icon></RouterLink>
+                    <RouterLink class="btn btn-sm btn-ghost" to="/chat"><Icon name="ic:baseline-send" size="24px"></Icon></RouterLink>
                 </template>
             </ul>
         </div>

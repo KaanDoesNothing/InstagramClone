@@ -1,5 +1,5 @@
 import {Application, Router} from "oak/mod.ts"
-import { DB_Comment, DB_Follower, DB_Post, DB_PostUserData, DB_Story, DB_User, initDatabase, preparePost, prepareUser } from "./database/index.ts"
+import { DB_ChatMessage, DB_Comment, DB_Follower, DB_Post, DB_PostUserData, DB_Story, DB_User, initDatabase, preparePost, prepareUser } from "./database/index.ts"
 import { requiresToken } from "./middleware/index.ts";
 import { oakCors } from "cors/mod.ts";
 import { comparePassword } from "./utils.ts";
@@ -12,7 +12,7 @@ console.timeEnd("Database");
 const APIServer = new Application();
 APIServer.use(oakCors({preflightContinue: true, optionsSuccessStatus: 200}));
 
-const router = new Router({prefix: "/api/v1"});
+export const router = new Router({prefix: "/api/v1"});
 
 router.get("/", (ctx) => {
     ctx.response.body = {hello: "world"};
@@ -181,6 +181,31 @@ router.post("/auth/login", async (ctx) => {
     if(!passwordCorrect) return ctx.response.body = {error: {message: "Invalid password"}};
 
     ctx.response.body = {data: user.token};
+});
+
+router.get("/user/:username/chat", requiresToken, async (ctx) => {
+    const user = await DB_User.findOne({username: ctx.params.username});
+    if(!user) throw "err";
+
+    const chat = await DB_ChatMessage.find().or([{from: user._id, to: ctx.session._id}, {from: ctx.session._id, to: user._id}]).populate("from").populate("to");
+
+    ctx.response.body = {data: chat};
+});
+
+router.put("/user/:username/chat", requiresToken, async (ctx) => {
+    const body = await ctx.request.body({type: "json"}).value;
+
+    const author = await DB_User.findOne({_id: ctx.session._id});
+    const user = await DB_User.findOne({username: ctx.params.username});
+    if(!user) throw "err";
+
+    await DB_ChatMessage.create({
+        from: author,
+        to: user,
+        content: body.content
+    });
+
+    ctx.response.body = {data: true};
 });
 
 APIServer.use(router.routes()).use(router.allowedMethods());

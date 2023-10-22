@@ -85,6 +85,13 @@ export const useGlobalState = defineStore("globalState", {
             await $fetch<any>(`${config.public.API}/post/${id}/save`, {headers: {"Authorization": this.token as string}, method: this.getPostData(id)?.liked ? "DELETE" : "PUT"});
     
             await this.fetchUser();
+        },
+        async fetchChat(username: string) {
+            const config = useRuntimeConfig();
+
+            const res = await $fetch<any>(`${config.public.API}/user/${username}/chat`, {headers: {"Authorization": this.token as string}, method: "GET"});
+
+            return res.data;
         }
     }
 });

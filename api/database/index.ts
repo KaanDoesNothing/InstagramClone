@@ -1,5 +1,5 @@
 import {mongoose} from "../npm.ts";
-import {CommentSchema, FollowerSchema, PostSchema, PostUserDataSchema, StorySchema, UserSchema} from "./schemas.ts";
+import {ChatMessageSchema, CommentSchema, FollowerSchema, PostSchema, PostUserDataSchema, StorySchema, UserSchema} from "./schemas.ts";
 import { ServerConfig } from "../config.ts";
 
 //@ts-ignore
@@ -11,6 +11,7 @@ export const DB_Story = mongoose.model("Story", StorySchema);
 export const DB_Post = mongoose.model("Post", PostSchema);
 export const DB_PostUserData = mongoose.model("PostUserData", PostUserDataSchema);
 export const DB_Comment = mongoose.model("Comment", CommentSchema);
+export const DB_ChatMessage = mongoose.model("ChatMessage", ChatMessageSchema);
 
 export const cleanUser = (user: any) => {
     user.password = undefined;
