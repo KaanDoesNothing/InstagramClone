@@ -1,5 +1,5 @@
 import { Context } from "oak/mod.ts";
-import { DB_User } from "../database/index.ts";
+import { User } from "../db/entities/user.ts";
 
 declare module "oak/mod.ts" {
     class Context {
@@ -16,7 +16,7 @@ export const requiresToken = async (ctx: Context, next) => {
         return;
     }
 
-    const user = await DB_User.findOne({token: token}, {username: true, avatar: true, email: true}).lean();
+    const user = await User.findOne({where: {token}, relations: {likes: {post: true}, bookmarks: {post: true}, stories: true, posts: true, followers: {target: true, author: true}, following: {target: true, author: true}}});
     if(!user) throw "err";
 
     ctx.session = user;

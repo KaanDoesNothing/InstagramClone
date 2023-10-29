@@ -9,7 +9,7 @@ interface iGlobalState {
 
 export const useGlobalState = defineStore("globalState", {
     state: (): iGlobalState => {
-        return {token: undefined, user: undefined, isLoggedIn: false, posts: undefined}
+        return {token: undefined, user: undefined, isLoggedIn: false, posts: []}
     },
     actions: {
         async authenticate(token?: string): Promise<boolean> {
@@ -43,6 +43,8 @@ export const useGlobalState = defineStore("globalState", {
             if(res.data) {
                 this.user = res.data;
                 this.isLoggedIn = true;
+
+                console.log(`UserData`, res.data);
             }
         },
         async fetchPosts() {
@@ -55,6 +57,16 @@ export const useGlobalState = defineStore("globalState", {
             if(res.data) {
                 this.posts = res.data;
             }
+        },
+        getLiked(id: string) {
+            if(this.isLoggedIn) return this.user.likes.filter((row: any) => row.post.id === id).length > 0;
+
+            return false;
+        },
+        getSaved(id: string) {
+            if(this.isLoggedIn) return this.user.bookmarks.filter((row: any) => row.post.id === id).length > 0;
+
+            return false;
         },
         getPostData(id: string) {
             if(this.isLoggedIn) return this.user.postUserData.filter((row: any) => row.post._id === id)[0];
@@ -75,14 +87,14 @@ export const useGlobalState = defineStore("globalState", {
         async likePost(id: string) {
             const config = useRuntimeConfig();
 
-            await $fetch<any>(`${config.public.API}/post/${id}/like`, {headers: {"Authorization": this.token as string}, method: this.getPostData(id)?.liked ? "DELETE" : "PUT"});
+            await $fetch<any>(`${config.public.API}/post/${id}/like`, {headers: {"Authorization": this.token as string}, method: this.getLiked(id) ? "DELETE" : "PUT"});
     
             await this.fetchUser();
         },
         async savePost(id: string) {
             const config = useRuntimeConfig();
 
-            await $fetch<any>(`${config.public.API}/post/${id}/save`, {headers: {"Authorization": this.token as string}, method: this.getPostData(id)?.liked ? "DELETE" : "PUT"});
+            await $fetch<any>(`${config.public.API}/post/${id}/save`, {headers: {"Authorization": this.token as string}, method: this.getSaved(id) ? "DELETE" : "PUT"});
     
             await this.fetchUser();
         },

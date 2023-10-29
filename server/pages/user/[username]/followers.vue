@@ -4,11 +4,11 @@
             <div class="bg-base-200 p-5 w-2/3 rounded flex justify-between flex-col">
                 <div class="bg-base-300 p-2 mt-2 rounded flex flex-row justify-between" v-for="follower in user.followers">
                     <div class="flex flex-row">
-                        <img class="h-8 rounded-full" :src="follower.from.avatar">
-                        <RouterLink class="mx-5" :to="`/user/${follower.from.username}`">{{ follower.from.username }}</RouterLink>
+                        <img class="h-8 rounded-full" :src="follower.author.avatar">
+                        <RouterLink class="mx-5" :to="`/user/${follower.author.username}`">{{ follower.author.username }}</RouterLink>
                     </div>
                     <div>
-                        <RouterLink class="mx-5 btn btn-sm" :to="`/user/${follower.from.username}`">Profile</RouterLink>
+                        <RouterLink class="mx-5 btn btn-sm" :to="`/user/${follower.author.username}`">Profile</RouterLink>
                     </div>
                 </div>
             </div>

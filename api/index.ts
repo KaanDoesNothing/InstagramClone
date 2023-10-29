@@ -1,11 +1,20 @@
 import {Application, Router} from "oak/mod.ts"
-import { DB_ChatMessage, DB_Comment, DB_Follower, DB_Post, DB_PostUserData, DB_Story, DB_User, initDatabase, preparePost, prepareUser } from "./database/index.ts"
+// import { DB_ChatMessage, DB_Comment, DB_Follower, DB_Post, DB_PostUserData, DB_Story, DB_User, initDatabase, preparePost, prepareUser } from "./database/index.ts"
 import { requiresToken } from "./middleware/index.ts";
 import { oakCors } from "cors/mod.ts";
-import { comparePassword } from "./utils.ts";
+import { comparePassword, hashPassword } from "./utils.ts";
+
+import "./db/index.ts";
+import { Post } from "./db/entities/post.ts";
+import { User } from "./db/entities/user.ts";
+import { Story } from "./db/entities/story.ts";
+import { Follower } from "./db/entities/follower.ts";
+import { Comment } from "./db/entities/comment.ts";
+import { Like } from "./db/entities/like.ts";
+import { Bookmark } from "./db/entities/bookmark.ts";
 
 console.time("Database");
-await initDatabase();
+// await initDatabase();
 console.timeEnd("Database");
 
 
@@ -18,8 +27,11 @@ router.get("/", (ctx) => {
     ctx.response.body = {hello: "world"};
 });
 
-router.get("/user/me", requiresToken, async (ctx) => {
-    const user = await prepareUser(ctx.session);
+router.get("/user/me", requiresToken, (ctx) => {
+    // const user = await prepareUser(ctx.session);
+    const user = ctx.session;
+
+    // console.log(user.username);
 
     ctx.response.body = {data: user};
 });
@@ -27,129 +39,108 @@ router.get("/user/me", requiresToken, async (ctx) => {
 router.put("/user/story", requiresToken, async (ctx) => {
     const body = await ctx.request.body({type: "json"}).value;
 
-    const user = await DB_User.findOne({username: ctx.session.username});
+    const user = await User.findOne({where: {username: ctx.session.username}});
 
-    await DB_Story.create({
+    const res = await Story.create({
         author: user,
         source: body.source,
-        content: body.content
-    });
+        // content: body.content
+    }).save();
 
-    ctx.response.body = {data: true};
+    ctx.response.body = {data: res};
 });
 
 router.put("/user/post", requiresToken, async (ctx) => {
     const body = await ctx.request.body({type: "json"}).value;
 
-    const user = await DB_User.findOne({username: ctx.session.username});
+    const user = await User.findOne({where: {username: ctx.session.username}});
 
-    await DB_Post.create({
+    const res = await Post.create({
         author: user,
         source: body.source,
         description: body.content
-    });
+    }).save();
 
-    ctx.response.body = {data: true};
+    ctx.response.body = {data: res};
 });
 
 router.put("/user/:username/follow", requiresToken, async (ctx) => {
-    const author = await DB_User.findOne({username: ctx.session.username});
-    const user = await DB_User.findOne({username: ctx.params.username});
+    const author = await User.findOne({where: {username: ctx.session.username}});
+    const user = await User.findOne({where: {username: ctx.params.username}});
 
-    await DB_Follower.create({
-        from: author,
-        to: user
-    });
+    const res = await Follower.create({
+        author: author,
+        target: user
+    }).save();
 
-    ctx.response.body = {data: true};
+    ctx.response.body = {data: res};
 });
 
 router.delete("/user/:username/follow", requiresToken, async (ctx) => {
-    const author = await DB_User.findOne({username: ctx.session.username});
-    const user = await DB_User.findOne({username: ctx.params.username});
+    // const author = await User.findOne({where: {username: ctx.session.username}});
+    const user = await User.findOne({where: {username: ctx.params.username}});
 
-    await DB_Follower.deleteOne({
-        from: author,
-        to: user
-    });
+    const row = await Follower.findOne({where: {
+        author: ctx.session.id,
+        target: user.id
+    }});
 
-    ctx.response.body = {data: true};
+    const res = await row.remove();
+
+    ctx.response.body = {data: res};
 })
 
 router.get("/user/:username", async (ctx) => {
-    const user = await DB_User.findOne({username: ctx.params.username}, {username: true, avatar: true, description: true}).lean();
-    const prepared = await prepareUser(user);
+    const user = await User.findOne({where: {username: ctx.params.username}, relations: {comments: true, stories: true, posts: {author: true}, followers: {target: true, author: true}, following: {target: true, author: true}}});
+    // const prepared = await prepareUser(user);
 
-    ctx.response.body = {data: prepared};
-});
-
-router.get("/user/:username/posts", async (ctx) => {
-    const user = await DB_User.findOne({username: ctx.params.username});
-    const posts = await DB_Post.find({author: user}).sort({createdAt: -1}).lean();
-
-    ctx.response.body = {data: posts};
+    ctx.response.body = {data: user};
 });
 
 router.put("/post/:post/like", requiresToken, async (ctx) => {
-    const author = await DB_User.findOne({username: ctx.session.username});
-    const post = await DB_Post.findOne({_id: ctx.params.post});
-    const postData = await DB_PostUserData.findOne({author, post});
+    const author = await User.findOne({where: {username: ctx.session.username}});
+    const post = await Post.findOne({where: {id: parseInt(ctx.params.post)}});
 
-    if(postData) {
-        postData.liked = true;
-        await postData.save();
-    }else {
-        await DB_PostUserData.create({
-            author,
-            post,
-            liked: true
-        });
-    }
+    await Like.create({
+        author,
+        post
+    }).save();
 
     ctx.response.body = {data: true};
 });
 
 router.delete("/post/:post/like", requiresToken, async (ctx) => {
-    const author = await DB_User.findOne({username: ctx.session.username});
-    const post = await DB_Post.findOne({_id: ctx.params.post});
-    const postData = await DB_PostUserData.findOne({author, post});
+    const author = await User.findOne({where: {username: ctx.session.username}});
+    const post = await Post.findOne({where: {id: parseInt(ctx.params.post)}});
 
-    if(postData) {
-        postData.liked = false;
-        await postData.save();
-    }
+    await Like.delete({
+        author: author.id,
+        post: post.id
+    });
 
     ctx.response.body = {data: true};
 });
 
 router.put("/post/:post/save", requiresToken, async (ctx) => {
-    const author = await DB_User.findOne({username: ctx.session.username});
-    const post = await DB_Post.findOne({_id: ctx.params.post});
-    const postData = await DB_PostUserData.findOne({author, post});
+    const author = await User.findOne({where: {username: ctx.session.username}});
+    const post = await Post.findOne({where: {id: parseInt(ctx.params.post)}});
 
-    if(postData) {
-        postData.saved = true;
-        await postData.save();
-    }else {
-        await DB_PostUserData.create({
-            author,
-            post,
-            saved: true
-        });
-    }
+    await Bookmark.create({
+        author,
+        post
+    }).save();
 
     ctx.response.body = {data: true};
 });
 
 router.delete("/post/:post/save", requiresToken, async (ctx) => {
-    const author = await DB_User.findOne({username: ctx.session.username});
-    const post = await DB_Post.findOne({_id: ctx.params.post});
-    const postData = await DB_PostUserData.findOne({author, post});
+    const author = await User.findOne({where: {username: ctx.session.username}});
+    const post = await Post.findOne({where: {id: parseInt(ctx.params.post)}});
 
-    if(postData) {
-        postData.saved = false;
-        await postData.save();
-    }
+    await Bookmark.delete({
+        author: author.id,
+        post: post.id
+    });
 
     ctx.response.body = {data: true};
 });
@@ -159,28 +150,51 @@ router.get("/post/:post", requiresToken, async (ctx) => {
 })
 
 router.get("/user/:username/post/:id/comments", async (ctx) => {
-    const post = await DB_Post.findOne({_id: ctx.params.id});
-    const comments = await DB_Comment.find({post}).sort({createdAt: -1}).populate("author", {username: true, avatar: true}).lean();
+    const post = await Post.findOne({where: {id: parseInt(ctx.params.id)}, relations: {}});
+    const comments = await Comment.find({where: {post: post.id}, relations: {author: true}});
+    // .so({createdAt: -1}).populate("author", {username: true, avatar: true}).lean();
 
     ctx.response.body = {data: comments};
 });
 
 router.get("/general/recent/posts", async (ctx) => {
-    const posts = await DB_Post.find().populate("author", {username: true, avatar: true}).sort({createdAt: -1});
+    const posts = await Post.find({relations: {author: true}});
+    // const posts = await DB_Post.find().populate("author", {username: true, avatar: true}).sort({createdAt: -1});
 
-    ctx.response.body = {data: await Promise.all(posts.map(post => preparePost(post)))};
+    ctx.response.body = {data: posts};
 });
 
 router.post("/auth/login", async (ctx) => {
     const body = await ctx.request.body({type: "json"}).value;
 
-    const user = await DB_User.findOne({email: body.email});
+    const user = await User.findOne({where: {email: body.email}});
     if(!user) return ctx.response.body = {error: {message: "User doesn't exist"}};
 
     const passwordCorrect = body.password === user.password || await comparePassword(body.password, user.password);
     if(!passwordCorrect) return ctx.response.body = {error: {message: "Invalid password"}};
 
     ctx.response.body = {data: user.token};
+});
+
+router.post("/auth/register", async (ctx) => {
+    const body = await ctx.request.body({type: "json"}).value;
+
+    const user = await User.findOne({where: {email: body.email}});
+    if(user) return {error: {message: "User already exists"}};
+
+    const hashedPassword = await hashPassword(body.password);
+    if(!hashedPassword) return {error: {message: "Couldn't hash password"}};
+
+    const token = crypto.randomUUID();
+
+    await User.create({
+        username: body.username,
+        email: body.email,
+        password: hashedPassword,
+        token
+    }).save();
+
+    ctx.response.body = {data: true};
 });
 
 router.get("/user/:username/chat", requiresToken, async (ctx) => {

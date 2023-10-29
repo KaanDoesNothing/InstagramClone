@@ -28,11 +28,13 @@
 <script lang="ts" setup>
     import { ref } from "vue";
 
+    const config = useRuntimeConfig();
+
     const username = ref("");
     const email = ref("");
     const password = ref("");
 
     const handleRegister = async () => {
-        const res = await $fetch("/api/auth/register", {body: {username: username.value, email: email.value, password: password.value}, method: "POST"})
+        const res = await $fetch(`${config.public.API}/auth/register`, {body: {username: username.value, email: email.value, password: password.value}, method: "POST"})
     }
 </script>

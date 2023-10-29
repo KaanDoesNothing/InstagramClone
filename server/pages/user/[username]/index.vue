@@ -1,9 +1,9 @@
 <template>
-    <div>
+    <div v-if="user">
         <div class="p-5 flex justify-between">
             <div>
                 <div class="label flex flex-col">
-                    <img class="rounded-full max-w-24 max-h-24 min-w-24 h-24 align-middle object-cover" :src="user.avatar">
+                    <img class="rounded-full object-cover w-24 h-24 min-w-24 min-h-24 align-middle" :src="user.avatar">
                     <label class="font-light mt-1 f">@{{ user.username }}</label>
                 </div>
             </div>
@@ -46,7 +46,7 @@
                 <div class="flex flex-row mt-5 md:mt-10 justify-center">
                     <div class="grid justify-center grid-cols-4 md:gap-0 md:p-4">
                         <div class="rounded-lg" v-for="post in user.posts">
-                            <RouterLink :to="`/user/${user.username}/posts/${post._id}`">
+                            <RouterLink :to="`/user/${user.username}/posts/${post.id}`">
                                 <template v-if="!post.source.endsWith('.mp4')">
                                     <img class="md:h-60 md:w-60 object-cover" :src="post.source">
                                 </template>
@@ -61,6 +61,8 @@
             </div>      
         </div>
     </div>
+
+    <Error v-if="!user"></Error>
 </template>
 
 <script lang="ts" setup>
@@ -69,11 +71,15 @@
     const route = useRoute();
     const username = route.params.username as string;
     
-    const user = ref(await fetchUser(username));
+    const user = ref();
+
+    user.value = await fetchUser(username);
 
     const isFollowing = computed(() => {
         if(state.isLoggedIn) {
-            return user.value.followers.filter((row: any) => row.from._id === state.user._id).length > 0;
+            // console.log(state.user);
+            // return false
+            return user.value.followers.filter((row: any) => row.author.id === state.user.id).length > 0;
         }
     })
 
